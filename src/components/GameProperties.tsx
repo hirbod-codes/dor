@@ -16,7 +16,7 @@ function GameProperties({ teams, setTeams }: { teams: Team[], setTeams: React.Di
 
                         <Button className="bg-accent text-accent-foreground" onClick={() => setTeams([...teams, { members: [], score: 0 }])}>Add Team</Button>
 
-                        <div className="max-h-90 overflow-y-auto border-2 border-red-500">
+                        <div className="max-h-90 overflow-y-auto border-2 py-2">
                             {teams.map((_t, i) =>
                                 <div key={i} className="flex flex-row *:m-1 items-center">
                                     <Input required max={15} value={teams[i].members[0] ?? ''} onChange={(e) => {

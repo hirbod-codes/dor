@@ -9,10 +9,11 @@ import LeftArrow from '@/assets/left_arrow.svg?react'
 import lightTheme from '@/themes/light.json'
 import darkTheme from '@/themes/dark.json'
 import type { Team } from './components/types'
+import Game from './components/Game'
 
 function App() {
     const [teams, setTeams] = useState<Team[]>(localStorage.getItem('teams') !== null ? JSON.parse(localStorage.getItem('teams') as string) as any : [{ members: [], score: 0 }])
-    const [stage, setStage] = useState<number>(0)
+    const [stage, setStage] = useState<number>(1)
 
     const [styles0, api0] = useSpring(() => ({
         from: { x: '-100%' },
@@ -79,7 +80,6 @@ function App() {
 
     const changeTheme = (t: 'dark' | 'light') => {
         const themeColors: { [k: string]: string } = t === 'light' ? lightTheme : darkTheme
-        console.log(t, themeColors);
 
         for (const key in themeColors)
             if (Object.prototype.hasOwnProperty.call(themeColors, key)) {
@@ -109,19 +109,20 @@ function App() {
                 {theme === 'light' && <Moon className='cursor-pointer stroke-primary-foreground fill-primary-foreground' fontSize={30} onClick={() => changeTheme('dark')} />}
             </div>
 
-            <animated.div className="top-[5%] left-0 absolute h-[85%] w-full border-1" style={{ ...styles0 }}>
+            <animated.div className="top-[5%] left-0 absolute h-[85%] w-full" style={{ ...styles0 }}>
                 <GameProperties teams={teams} setTeams={setTeams} />
             </animated.div >
 
-            <animated.div className="top-[5%] left-0 absolute h-[85%] w-full border-1 overflow-y-auto" style={{ ...styles1 }}>
-                {Object.keys(lightTheme).map((k, i) =>
+            <animated.div className="top-[5%] left-0 absolute h-[85%] w-full overflow-y-auto" style={{ ...styles1 }}>
+                <Game teams={teams} />
+                {/* {Object.keys(lightTheme).map((k, i) =>
                     <div key={i} className='p-1' style={{ backgroundColor: `hsl(${(lightTheme as any)[k]})` }}>
                         {k}: {(lightTheme as any)[k]}
                     </div>
-                )}
+                )} */}
             </animated.div>
 
-            <animated.div className="top-[5%] left-0 absolute h-[85%] w-full border-1 overflow-y-auto" style={{ ...styles2 }}>
+            <animated.div className="top-[5%] left-0 absolute h-[85%] w-full overflow-y-auto" style={{ ...styles2 }}>
                 {Object.keys(darkTheme).map((k, i) =>
                     <div key={i} className='p-1' style={{ backgroundColor: `hsl(${(darkTheme as any)[k]})` }}>
                         {k}: {(darkTheme as any)[k]}
@@ -129,12 +130,12 @@ function App() {
                 )}
             </animated.div>
 
-            <div className="flex flex-row items-center bottom-0 left-0 absolute h-[10%] w-full border-1 p-4">
+            {stage === 0 && <div className="flex flex-row items-center bottom-0 left-0 absolute h-[10%] w-full border-1 p-4">
                 <Button className='w-full' disabled={!validateInput(teams)} onClick={() => {
                     localStorage.setItem('teams', JSON.stringify(teams))
                     setStage(stage + 1)
                 }}>Start</Button>
-            </div>
+            </div>}
         </>
     )
 }

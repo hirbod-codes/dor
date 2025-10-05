@@ -28,7 +28,7 @@ function Teammate({ team, angle, index, registerControls, unregisterControls }: 
                 initial={{ offsetRotate: '360deg', offsetDistance: `${(((index * angle) + 90) / 360) * 100}%` }}
                 animate={control1}
                 transition={transition}
-                style={{ offsetPath: 'circle(25% at 50% 50%)' }}
+                style={{ offsetPath: 'circle(25% at 50% 50%)', transform: 'translateZ(0)', backfaceVisibility: 'hidden', WebkitFontSmoothing: 'antialiased' }}
             >
                 {team.members[0]}
             </motion.div>
@@ -39,7 +39,9 @@ function Teammate({ team, angle, index, registerControls, unregisterControls }: 
                 transition={transition}
                 style={{ offsetPath: 'circle(25% at 50% 50%)' }}
             >
-                {team.members[1]}
+                <div className="transform-none">
+                    {team.members[1]}
+                </div>
             </motion.div>
         </>
     )

@@ -149,6 +149,11 @@ function App() {
                 {stage === 0 &&
                     <div className="flex flex-col gap-2 items-center justify-center flex-1 w-full border-1 p-3">
                         <Button className='w-full' disabled={!validateInput(teams)} onClick={() => {
+                            teams.map(t => t.score = 0)
+                            if (teams !== undefined)
+                                localStorage.setItem('teams', JSON.stringify(teams))
+                            setTeams([...teams])
+
                             setStage(stage + 1)
                         }}>Start</Button>
 

@@ -57,7 +57,7 @@ function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Disp
     }
 
     const rotate = () => {
-        if (turns.current >= appContext?.maxTurns) {
+        if (turns.current >= ((appContext.maxTurns * teams.length * 2) - 1)) {
             teams.sort((a, b) => a.score - b.score)
             showResult()
             return
@@ -164,8 +164,6 @@ function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Disp
                             </div>
                         </div>
                     }
-
-                    <Button className="my-2" onClick={() => setShowingResult(!showingResult)}>result</Button>
                 </div>
 
                 {showingResult &&
@@ -186,7 +184,7 @@ function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Disp
                             </div>
                         )}
 
-                        <Button className="my-2" onClick={() => finish()}>Home</Button>
+                        <Button className="my-2" onClick={() => { setShowingResult(false); finish() }}>Home</Button>
                     </motion.div>
                 }
             </>

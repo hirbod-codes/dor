@@ -45,7 +45,6 @@ function CountDownClock({ durationSeconds, resetRef }: { durationSeconds: number
             <motion.div
                 className="rounded-sm w-4 h-4 bg-primary"
                 initial={{ width: '0%', opacity: 0 }}
-                // animate={{ width: '100%', opacity: 1 }}
                 animate={controls}
                 exit={{ opacity: 0 }}
                 transition={{

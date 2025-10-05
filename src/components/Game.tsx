@@ -1,18 +1,24 @@
-import { useReducer, useRef, useState } from "react"
-import { type Transition } from 'framer-motion'
+import { useContext, useReducer, useRef, useState } from "react"
+import { type Transition, motion } from 'framer-motion'
 import type { Team } from "./types"
 import { Button } from "./shadcn/ui/button"
 import animals from '@/words/animals.json'
 import { DateTime } from 'luxon'
 import CountDownClock from "./CountDownClock"
 import Teammate from "./Teammate"
+import { AppContext } from "@/context"
+import { Input } from "./shadcn/ui/input"
 
 const transition: Transition = {
     duration: 1,
     ease: "easeInOut",
 }
 
-function Game({ teams, setTeams, eachTurnDurationSeconds = 5, finish }: { teams: Team[], setTeams: React.Dispatch<React.SetStateAction<Team[]>>, eachTurnDurationSeconds?: number, finish: () => void }) {
+function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Dispatch<React.SetStateAction<Team[]>>, finish: () => void }) {
+    const appContext = useContext(AppContext)!
+
+    const eachTurnDurationSeconds = appContext.eachTurnDurationSeconds
+
     const [words, _setWords] = useState(animals)
 
     const startedAt = useRef(0)
@@ -51,6 +57,12 @@ function Game({ teams, setTeams, eachTurnDurationSeconds = 5, finish }: { teams:
     }
 
     const rotate = () => {
+        if (turns.current >= appContext?.maxTurns) {
+            teams.sort((a, b) => a.score - b.score)
+            showResult()
+            return
+        }
+
         turns.current += 1
 
         // let angle = 360 / (teams.length * 2) // Since each team has two members
@@ -64,6 +76,11 @@ function Game({ teams, setTeams, eachTurnDurationSeconds = 5, finish }: { teams:
                 transition
             })
         })
+    }
+
+    const [showingResult, setShowingResult] = useState(false)
+    const showResult = () => {
+        setShowingResult(true)
     }
 
     const initialState = { playing: false };
@@ -107,48 +124,72 @@ function Game({ teams, setTeams, eachTurnDurationSeconds = 5, finish }: { teams:
         </>)
     else
         return (
-            <div className="w-full h-full p-2">
-                <Button className="my-2" onClick={() => finish()}>End</Button>
+            <>
+                <div className="w-full h-full p-2">
+                    {state.playing && <CountDownClock durationSeconds={eachTurnDurationSeconds} resetRef={turns.current} />}
 
-                {state.playing && <CountDownClock durationSeconds={eachTurnDurationSeconds} resetRef={turns.current} />}
+                    {teams.map((t, i) =>
+                        <Teammate key={angle + i} angle={angle} index={i} team={t} registerControls={register} unregisterControls={unregister} />
+                    )}
 
-                {teams.map((t, i) =>
-                    <Teammate key={angle + i} angle={angle} index={i} team={t} registerControls={register} unregisterControls={unregister} />
-                )}
+                    {!state.playing &&
+                        <Button className="top-1/2 left-1/2 absolute -translate-x-[50%] -translate-y-[50%]" onClick={() => {
+                            // To do: fetch words
+                            dispatch({ type: 'start' })
+                        }}>
+                            Start
+                        </Button>
+                    }
 
-                {!state.playing &&
-                    <Button className="top-1/2 left-1/2 absolute -translate-x-[50%] -translate-y-[50%]" onClick={() => {
-                        // To do: fetch words
-                        dispatch({ type: 'start' })
-                    }}>
-                        Start
-                    </Button>
-                }
+                    {state.playing &&
+                        <div
+                            className="top-1/2 left-1/2 absolute -translate-x-[50%] -translate-y-[50%] rounded-full w-[25%] h-[25%]"
+                            onClick={() => {
+                                stopTimer()
 
-                {state.playing &&
-                    <div
-                        className="top-1/2 left-1/2 absolute -translate-x-[50%] -translate-y-[50%] rounded-full w-[25%] h-[25%]"
-                        onClick={() => {
-                            stopTimer()
+                                rotate()
 
-                            rotate()
+                                // Add score
+                                teams[turns.current % teams.length].score += DateTime.utc().toUnixInteger() - startedAt.current
+                                setTeams([...teams])
 
-                            // Add score
-                            teams[turns.current % teams.length].score += DateTime.utc().toUnixInteger() - startedAt.current
-                            setTeams([...teams])
-
-                            startTimer(() => {
-                                console.log('tick')
-                                dispatch({ type: 'timeout' })
-                            })
-                        }}
-                    >
-                        <div className="top-1/2 left-1/2 absolute -translate-x-[50%] -translate-y-[50%] pointer-events-none cursor-pointer">
-                            {words[turns.current % words.length]}
+                                startTimer(() => {
+                                    console.log('tick')
+                                    dispatch({ type: 'timeout' })
+                                })
+                            }}
+                        >
+                            <div className="top-1/2 left-1/2 absolute -translate-x-[50%] -translate-y-[50%] pointer-events-none cursor-pointer">
+                                {words[turns.current % words.length]}
+                            </div>
                         </div>
-                    </div>
+                    }
+
+                    <Button className="my-2" onClick={() => setShowingResult(!showingResult)}>result</Button>
+                </div>
+
+                {showingResult &&
+                    <motion.div
+                        className="absolute h-full w-full bg-background p-4 flex flex-col gap-8 overflow-y-auto"
+                        initial={{ bottom: '-100%' }}
+                        animate={{ bottom: showingResult ? '0%' : '-100%' }}
+                        exit={{ bottom: '-100%' }}
+                        transition={{ duration: 1, ease: 'easeInOut' }}
+                    >
+                        {teams.map((t, i) =>
+                            <div key={i} className="flex flex-row items-center gap-2">
+                                <div className="text-xl">
+                                    {`Score: ${t.score}`}
+                                </div>
+                                <Input value={t.members[0]} />
+                                <Input value={t.members[1]} />
+                            </div>
+                        )}
+
+                        <Button className="my-2" onClick={() => finish()}>Home</Button>
+                    </motion.div>
                 }
-            </div>
+            </>
         )
 }
 

@@ -16,7 +16,7 @@ export type GamePropertiesProps = {
 function GameProperties({ teams, setTeams, maxTurns, setMaxTurns, eachTurnDurationSeconds, setEachTurnDurationSeconds }: GamePropertiesProps) {
     return (
         <>
-            <div className="p-2">
+            <div className="p-2 overflow-y-auto">
                 <FieldGroup>
                     <FieldSet>
                         <FieldLegend>
@@ -52,7 +52,7 @@ function GameProperties({ teams, setTeams, maxTurns, setMaxTurns, eachTurnDurati
                                     value={eachTurnDurationSeconds}
                                     onChange={(e) => {
                                         let n = Number(e.target.value)
-                                        if (!Number.isNaN(n) && n <= 7200)
+                                        if (!Number.isNaN(n) && n <= 7200 && n > 0)
                                             setEachTurnDurationSeconds(n)
                                     }}
                                 />
@@ -67,7 +67,7 @@ function GameProperties({ teams, setTeams, maxTurns, setMaxTurns, eachTurnDurati
                                     value={maxTurns}
                                     onChange={(e) => {
                                         let n = Number(e.target.value)
-                                        if (!Number.isNaN(n) && n <= 30)
+                                        if (!Number.isNaN(n) && n <= 30 && n > 0)
                                             setMaxTurns(n)
                                     }}
                                 />

@@ -22,7 +22,7 @@ function App() {
     console.log('App', `teams: ${JSON.stringify(teams)}`, `stage: ${stage}`)
 
     const [styles0, api0] = useSpring(() => ({
-        from: { x: '-100%' },
+        from: { left: '-100%' },
         config: {
             tension: 170,
             friction: 26
@@ -30,15 +30,7 @@ function App() {
     }))
 
     const [styles1, api1] = useSpring(() => ({
-        from: { x: '-100%' },
-        config: {
-            tension: 170,
-            friction: 26
-        }
-    }))
-
-    const [styles2, api2] = useSpring(() => ({
-        from: { x: '-100%' },
+        from: { left: '-100%' },
         config: {
             tension: 170,
             friction: 26
@@ -48,27 +40,23 @@ function App() {
     useEffect(() => {
         switch (stage) {
             case 0:
-                api1.start({ to: { x: '-100%' } })
-                api2.start({ to: { x: '-100%' } })
-                api0.start({ to: { x: '0%' } })
+                api1.start({ to: { left: '-100%' } })
+                api0.start({ to: { left: '0%' } })
                 break;
 
             case 1:
-                api0.start({ to: { x: '-100%' } })
-                api2.start({ to: { x: '-100%' } })
-                api1.start({ to: { x: '0%' } })
+                api0.start({ to: { left: '-100%' } })
+                api1.start({ to: { left: '0%' } })
                 break;
 
             case 2:
-                api0.start({ to: { x: '-100%' } })
-                api1.start({ to: { x: '-100%' } })
-                api2.start({ to: { x: '0%' } })
+                api0.start({ to: { left: '-100%' } })
+                api1.start({ to: { left: '-100%' } })
                 break;
 
             default:
-                api0.start({ to: { x: '-100%' } })
-                api1.start({ to: { x: '-100%' } })
-                api2.start({ to: { x: '-100%' } })
+                api0.start({ to: { left: '-100%' } })
+                api1.start({ to: { left: '-100%' } })
                 break;
         }
     }, [stage])
@@ -121,62 +109,53 @@ function App() {
 
     return (
         <AppContext.Provider value={{ eachTurnDurationSeconds, maxTurns }}>
-            <div className="top-0 left-0 absolute w-full flex flex-row justify-start bg-primary items-center p-2 h-[5%]">
-                {stage !== 0 && <LeftArrow className='cursor-pointer stroke-primary-foreground' fontSize={40} onClick={() => setStage(0)} />}
-                <div className="flex-1"></div>
-                {theme === 'dark' && <Sun className='cursor-pointer stroke-primary-foreground fill-primary-foreground' fontSize={30} onClick={() => changeTheme('light')} />}
-                {theme === 'light' && <Moon className='cursor-pointer stroke-primary-foreground fill-primary-foreground' fontSize={30} onClick={() => changeTheme('dark')} />}
-            </div>
-
-            <animated.div className="top-[5%] left-0 absolute h-[85%] w-full" style={{ ...styles0 }}>
-                <GameProperties
-                    teams={teams}
-                    setTeams={(v) => {
-                        if (v !== undefined)
-                            localStorage.setItem('teams', JSON.stringify(v))
-                        setTeams(v)
-                    }}
-                    maxTurns={maxTurns}
-                    setMaxTurns={(v) => {
-                        if (v !== undefined)
-                            localStorage.setItem('maxTurns', v.toString())
-                        setMaxTurns(v)
-                    }}
-                    eachTurnDurationSeconds={eachTurnDurationSeconds}
-                    setEachTurnDurationSeconds={(v) => {
-                        if (v !== undefined)
-                            localStorage.setItem('eachTurnDurationSeconds', v.toString())
-                        setEachTurnDurationSeconds(v)
-                    }}
-                />
-            </animated.div >
-
-            <animated.div className="top-[5%] left-0 absolute h-[85%] w-full overflow-y-auto" style={{ ...styles1 }}>
-                <Game teams={teams} setTeams={setTeams} finish={() => setStage(stage + 1)} />
-                {/* {Object.keys(lightTheme).map((k, i) =>
-                    <div key={i} className='p-1' style={{ backgroundColor: `hsl(${(lightTheme as any)[k]})` }}>
-                        {k}: {(lightTheme as any)[k]}
-                    </div>
-                )} */}
-            </animated.div>
-
-            <animated.div className="top-[5%] left-0 absolute h-[85%] w-full overflow-y-auto" style={{ ...styles2 }}>
-                {Object.keys(darkTheme).map((k, i) =>
-                    <div key={i} className='p-1' style={{ backgroundColor: `hsl(${(darkTheme as any)[k]})` }}>
-                        {k}: {(darkTheme as any)[k]}
-                    </div>
-                )}
-            </animated.div>
-
-            {stage === 0 &&
-                <div className="flex flex-col gap-2 items-center bottom-0 left-0 absolute h-[10%] w-full border-1 p-3">
-                    <Button className='w-full' disabled={!validateInput(teams)} onClick={() => {
-                        setStage(stage + 1)
-                    }}>Start</Button>
-
-                    {!validateInput(teams) && <div className='text-destructive'>Please fill all the fields</div>}
+            <div className="flex flex-col h-screen w-screen">
+                <div className="w-full flex flex-row justify-start bg-primary items-center p-2">
+                    {stage !== 0 && <LeftArrow className='cursor-pointer stroke-primary-foreground' fontSize={40} onClick={() => setStage(0)} />}
+                    <div className="flex-1"></div>
+                    {theme === 'dark' && <Sun className='cursor-pointer stroke-primary-foreground fill-primary-foreground' fontSize={30} onClick={() => changeTheme('light')} />}
+                    {theme === 'light' && <Moon className='cursor-pointer stroke-primary-foreground fill-primary-foreground' fontSize={30} onClick={() => changeTheme('dark')} />}
                 </div>
-            }
+
+                <div className="h-[85%] w-full relative">
+                    <animated.div className="top-0 left-0 absolute h-full w-full" style={{ ...styles0 }}>
+                        <GameProperties
+                            teams={teams}
+                            setTeams={(v) => {
+                                if (v !== undefined)
+                                    localStorage.setItem('teams', JSON.stringify(v))
+                                setTeams(v)
+                            }}
+                            maxTurns={maxTurns}
+                            setMaxTurns={(v) => {
+                                if (v !== undefined)
+                                    localStorage.setItem('maxTurns', v.toString())
+                                setMaxTurns(v)
+                            }}
+                            eachTurnDurationSeconds={eachTurnDurationSeconds}
+                            setEachTurnDurationSeconds={(v) => {
+                                if (v !== undefined)
+                                    localStorage.setItem('eachTurnDurationSeconds', v.toString())
+                                setEachTurnDurationSeconds(v)
+                            }}
+                        />
+                    </animated.div >
+
+                    <animated.div className="top-0 left-0 absolute h-full w-full" style={{ ...styles1 }}>
+                        <Game teams={teams} setTeams={setTeams} finish={() => setStage(0)} />
+                    </animated.div>
+                </div>
+
+                {stage === 0 &&
+                    <div className="flex flex-col gap-2 items-center justify-center flex-1 w-full border-1 p-3">
+                        <Button className='w-full' disabled={!validateInput(teams)} onClick={() => {
+                            setStage(stage + 1)
+                        }}>Start</Button>
+
+                        {!validateInput(teams) && <div className='text-destructive'>Please fill all the fields</div>}
+                    </div>
+                }
+            </div>
         </AppContext.Provider>
     )
 }

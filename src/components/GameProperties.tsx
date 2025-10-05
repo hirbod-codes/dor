@@ -1,10 +1,19 @@
 import { Button } from "./shadcn/ui/button"
-import { FieldGroup, FieldLegend, FieldSet } from "./shadcn/ui/field"
+import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "./shadcn/ui/field"
 import { Input } from "./shadcn/ui/input"
 import Trash from '@/assets/Trash.svg?react'
 import type { Team } from "./types"
 
-function GameProperties({ teams, setTeams }: { teams: Team[], setTeams: React.Dispatch<React.SetStateAction<Team[]>> }) {
+export type GamePropertiesProps = {
+    teams: Team[]
+    setTeams: React.Dispatch<React.SetStateAction<Team[]>>
+    maxTurns: number
+    setMaxTurns: React.Dispatch<React.SetStateAction<number>>
+    eachTurnDurationSeconds: number
+    setEachTurnDurationSeconds: React.Dispatch<React.SetStateAction<number>>
+}
+
+function GameProperties({ teams, setTeams, maxTurns, setMaxTurns, eachTurnDurationSeconds, setEachTurnDurationSeconds }: GamePropertiesProps) {
     return (
         <>
             <div className="p-2">
@@ -31,6 +40,39 @@ function GameProperties({ teams, setTeams }: { teams: Team[], setTeams: React.Di
                                 </div>
                             )}
                         </div>
+
+                        <FieldGroup>
+                            <Field>
+                                <FieldLabel htmlFor="eachTurnDurationSeconds">
+                                    Each turn's duration
+                                </FieldLabel>
+                                <Input
+                                    required
+                                    id="eachTurnDurationSeconds"
+                                    value={eachTurnDurationSeconds}
+                                    onChange={(e) => {
+                                        let n = Number(e.target.value)
+                                        if (!Number.isNaN(n) && n <= 7200)
+                                            setEachTurnDurationSeconds(n)
+                                    }}
+                                />
+                            </Field>
+                            <Field>
+                                <FieldLabel htmlFor="maxTurns">
+                                    Maximum number of turns
+                                </FieldLabel>
+                                <Input
+                                    required
+                                    id="maxTurns"
+                                    value={maxTurns}
+                                    onChange={(e) => {
+                                        let n = Number(e.target.value)
+                                        if (!Number.isNaN(n) && n <= 30)
+                                            setMaxTurns(n)
+                                    }}
+                                />
+                            </Field>
+                        </FieldGroup>
 
                     </FieldSet>
                 </FieldGroup>

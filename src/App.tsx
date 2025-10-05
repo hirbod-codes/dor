@@ -10,10 +10,14 @@ import lightTheme from '@/themes/light.json'
 import darkTheme from '@/themes/dark.json'
 import type { Team } from './components/types'
 import Game from './components/Game'
+import { AppContext } from './context'
 
 function App() {
-    const [teams, setTeams] = useState<Team[]>(localStorage.getItem('teams') !== null ? JSON.parse(localStorage.getItem('teams') as string) as any : [{ members: [], score: 0 }])
-    const [stage, setStage] = useState<number>(1)
+    const [teams, setTeams] = useState<Team[]>([{ members: [], score: 0 }])
+    const [stage, setStage] = useState<number>(0)
+
+    const [maxTurns, setMaxTurns] = useState(0)
+    const [eachTurnDurationSeconds, setEachTurnDurationSeconds] = useState(0)
 
     console.log('App', `teams: ${JSON.stringify(teams)}`, `stage: ${stage}`)
 
@@ -72,6 +76,15 @@ function App() {
     const [theme, setTheme] = useState<'dark' | 'light'>('dark')
 
     useEffect(() => {
+        if (localStorage.getItem('teams') !== null)
+            setTeams(JSON.parse(localStorage.getItem('teams') as string) as any)
+
+        if (localStorage.getItem('maxTurns') !== null)
+            setMaxTurns(Number.parseInt(localStorage.getItem('maxTurns')!))
+
+        if (localStorage.getItem('eachTurnDurationSeconds') !== null)
+            setEachTurnDurationSeconds(Number.parseInt(localStorage.getItem('eachTurnDurationSeconds')!))
+
         if (localStorage.getItem('theme') !== null)
             changeTheme(localStorage.getItem('theme') as any)
         else if (window.matchMedia("(prefers-color-scheme:dark").matches)
@@ -79,6 +92,13 @@ function App() {
         else
             changeTheme('light')
     }, [])
+
+    useEffect(() => {
+        if (teams !== undefined)
+            localStorage.setItem('teams', JSON.stringify(teams))
+        localStorage.setItem('maxTurns', maxTurns.toString())
+        localStorage.setItem('eachTurnDurationSeconds', eachTurnDurationSeconds.toString())
+    }, [teams, maxTurns, eachTurnDurationSeconds])
 
     const changeTheme = (t: 'dark' | 'light') => {
         const themeColors: { [k: string]: string } = t === 'light' ? lightTheme : darkTheme
@@ -103,7 +123,7 @@ function App() {
     }
 
     return (
-        <>
+        <AppContext.Provider value={{ eachTurnDurationSeconds, maxTurns }}>
             <div className="top-0 left-0 absolute w-full flex flex-row justify-start bg-primary items-center p-2 h-[5%]">
                 {stage !== 0 && <LeftArrow className='cursor-pointer stroke-primary-foreground' fontSize={40} onClick={() => setStage(0)} />}
                 <div className="flex-1"></div>
@@ -112,11 +132,11 @@ function App() {
             </div>
 
             <animated.div className="top-[5%] left-0 absolute h-[85%] w-full" style={{ ...styles0 }}>
-                <GameProperties teams={teams} setTeams={setTeams} />
+                <GameProperties teams={teams} setTeams={setTeams} maxTurns={maxTurns} setMaxTurns={setMaxTurns} eachTurnDurationSeconds={eachTurnDurationSeconds} setEachTurnDurationSeconds={setEachTurnDurationSeconds} />
             </animated.div >
 
             <animated.div className="top-[5%] left-0 absolute h-[85%] w-full overflow-y-auto" style={{ ...styles1 }}>
-                <Game teams={teams} setTeams={setTeams} finish={() => setStage(stage + 1)} />
+                <Game teams={teams} finish={() => setStage(stage + 1)} />
                 {/* {Object.keys(lightTheme).map((k, i) =>
                     <div key={i} className='p-1' style={{ backgroundColor: `hsl(${(lightTheme as any)[k]})` }}>
                         {k}: {(lightTheme as any)[k]}
@@ -138,7 +158,7 @@ function App() {
                     setStage(stage + 1)
                 }}>Start</Button>
             </div>}
-        </>
+        </AppContext.Provider>
     )
 }
 

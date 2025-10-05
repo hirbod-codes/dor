@@ -15,6 +15,8 @@ function App() {
     const [teams, setTeams] = useState<Team[]>(localStorage.getItem('teams') !== null ? JSON.parse(localStorage.getItem('teams') as string) as any : [{ members: [], score: 0 }])
     const [stage, setStage] = useState<number>(1)
 
+    console.log('App', `teams: ${JSON.stringify(teams)}`, `stage: ${stage}`)
+
     const [styles0, api0] = useSpring(() => ({
         from: { x: '-100%' },
         config: {
@@ -114,7 +116,7 @@ function App() {
             </animated.div >
 
             <animated.div className="top-[5%] left-0 absolute h-[85%] w-full overflow-y-auto" style={{ ...styles1 }}>
-                <Game teams={teams} />
+                <Game teams={teams} setTeams={setTeams} finish={() => setStage(stage + 1)} />
                 {/* {Object.keys(lightTheme).map((k, i) =>
                     <div key={i} className='p-1' style={{ backgroundColor: `hsl(${(lightTheme as any)[k]})` }}>
                         {k}: {(lightTheme as any)[k]}

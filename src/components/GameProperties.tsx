@@ -36,7 +36,7 @@ function GameProperties({ teams, setTeams, maxTurns, setMaxTurns, eachTurnDurati
                                         teams[i].members[1] = e.target.value
                                         setTeams([...teams])
                                     }} />
-                                    <Trash className="w-24 fill-destructive stroke-destructive" fontSize={20} onClick={() => setTeams((p) => p.filter((_, fi) => fi !== i))} />
+                                    {i >= 2 && <Trash className="w-24 fill-destructive stroke-destructive" fontSize={20} onClick={() => setTeams((p) => p.filter((_, fi) => fi !== i))} />}
                                 </div>
                             )}
                         </div>

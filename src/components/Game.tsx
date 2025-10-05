@@ -1,27 +1,34 @@
-import { Fragment, useReducer, useRef, useState } from "react"
-import { motion, useAnimation, type Transition } from 'framer-motion'
+import { useReducer, useRef, useState } from "react"
+import { type Transition } from 'framer-motion'
 import type { Team } from "./types"
 import { Button } from "./shadcn/ui/button"
 import animals from '@/words/animals.json'
 import { DateTime } from 'luxon'
 import CountDownClock from "./CountDownClock"
+import Teammate from "./Teammate"
 
 const transition: Transition = {
     duration: 1,
     ease: "easeInOut",
 }
 
-function Game({ teams: initialTeams, eachTurnDurationSeconds = 5, finish }: { teams: Team[], eachTurnDurationSeconds?: number, finish: () => void }) {
-    let controls: any[] = []
-
-    const [teams, setTeams] = useState(initialTeams)
+function Game({ teams, setTeams, eachTurnDurationSeconds = 5, finish }: { teams: Team[], setTeams: React.Dispatch<React.SetStateAction<Team[]>>, eachTurnDurationSeconds?: number, finish: () => void }) {
     const [words, _setWords] = useState(animals)
 
     const startedAt = useRef(0)
     const turns = useRef(0)
 
     let angle = 360 / (teams.length * 2) // Since each team has two members
-    teams.map((_, i) => { controls[i] = [useAnimation(), useAnimation()] })
+
+    const controlsRef = useRef<Map<number, any[]>>(new Map)
+
+    const register = (i: number, controls: any[]) => {
+        controlsRef.current.set(i, controls)
+    }
+
+    const unregister = (i: number) => {
+        controlsRef.current.delete(i)
+    }
 
     const timer = useRef<number | undefined>(undefined)
 
@@ -46,7 +53,8 @@ function Game({ teams: initialTeams, eachTurnDurationSeconds = 5, finish }: { te
     const rotate = () => {
         turns.current += 1
 
-        controls.map((cs, i) => {
+        // let angle = 360 / (teams.length * 2) // Since each team has two members
+        controlsRef.current.forEach((cs, i) => {
             cs[0].start({
                 offsetDistance: `${(((i * angle) + 90 + (turns.current * angle)) / 360) * 100}%`,
                 transition
@@ -89,7 +97,7 @@ function Game({ teams: initialTeams, eachTurnDurationSeconds = 5, finish }: { te
 
     const [state, dispatch] = useReducer(reducer, initialState);
 
-    // console.log('Game', { timer: timer.current, startedAt: startedAt.current, state, turns: turns.current })
+    console.log('Game', { timer: timer.current, startedAt: startedAt.current, state, turns: turns.current, teams })
 
     if (teams.length < 2)
         return (<>
@@ -105,26 +113,7 @@ function Game({ teams: initialTeams, eachTurnDurationSeconds = 5, finish }: { te
                 {state.playing && <CountDownClock durationSeconds={eachTurnDurationSeconds} resetRef={turns.current} />}
 
                 {teams.map((t, i) =>
-                    <Fragment key={i}>
-                        <motion.div
-                            className="absolute border-2 border-red-500"
-                            initial={{ offsetRotate: '360deg', offsetDistance: `${(((i * angle) + 90) / 360) * 100}%` }}
-                            animate={controls[i][0]}
-                            transition={transition}
-                            style={{ offsetPath: 'circle(25% at 50% 50%)' }}
-                        >
-                            {t.members[0]}
-                        </motion.div>
-                        <motion.div
-                            className="absolute border-2 border-red-500"
-                            initial={{ offsetRotate: '360deg', offsetDistance: `${(((i * angle) + 270) / 360) * 100}%` }}
-                            animate={controls[i][1]}
-                            transition={transition}
-                            style={{ offsetPath: 'circle(25% at 50% 50%)' }}
-                        >
-                            {t.members[1]}
-                        </motion.div>
-                    </Fragment>
+                    <Teammate key={angle + i} angle={angle} index={i} team={t} registerControls={register} unregisterControls={unregister} />
                 )}
 
                 {!state.playing &&

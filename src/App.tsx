@@ -13,7 +13,7 @@ import Game from './components/Game'
 import { AppContext } from './context'
 
 function App() {
-    const [teams, setTeams] = useState<Team[]>([{ members: [], score: 0 }])
+    const [teams, setTeams] = useState<Team[]>([{ members: [], score: 0 }, { members: [], score: 0 }, { members: [], score: 0 }, { members: [], score: 0 }])
     const [stage, setStage] = useState<number>(0)
 
     const [maxTurns, setMaxTurns] = useState(0)
@@ -77,13 +77,14 @@ function App() {
 
     const fetchFromLocalStorage = useRef(false)
     useEffect(() => {
-        if (localStorage.getItem('teams') !== null)
+        console.log(localStorage.getItem('teams'))
+        if (localStorage.getItem('teams') !== null && localStorage.getItem('teams') !== undefined && localStorage.getItem('teams') !== 'undefined' && localStorage.getItem('teams') !== 'null')
             setTeams(JSON.parse(localStorage.getItem('teams') as string) as any)
 
-        if (localStorage.getItem('maxTurns') !== null)
+        if (localStorage.getItem('maxTurns') !== null && localStorage.getItem('maxTurns') !== undefined && localStorage.getItem('maxTurns') !== 'undefined' && localStorage.getItem('maxTurns') !== 'null')
             setMaxTurns(Number.parseInt(localStorage.getItem('maxTurns')!))
 
-        if (localStorage.getItem('eachTurnDurationSeconds') !== null)
+        if (localStorage.getItem('eachTurnDurationSeconds') !== null && localStorage.getItem('eachTurnDurationSeconds') !== undefined && localStorage.getItem('eachTurnDurationSeconds') !== 'undefined' && localStorage.getItem('eachTurnDurationSeconds') !== 'null')
             setEachTurnDurationSeconds(Number.parseInt(localStorage.getItem('eachTurnDurationSeconds')!))
 
         if (localStorage.getItem('theme') !== null)
@@ -151,7 +152,7 @@ function App() {
             </animated.div >
 
             <animated.div className="top-[5%] left-0 absolute h-[85%] w-full overflow-y-auto" style={{ ...styles1 }}>
-                <Game teams={teams} finish={() => setStage(stage + 1)} />
+                <Game teams={teams} setTeams={setTeams} finish={() => setStage(stage + 1)} />
                 {/* {Object.keys(lightTheme).map((k, i) =>
                     <div key={i} className='p-1' style={{ backgroundColor: `hsl(${(lightTheme as any)[k]})` }}>
                         {k}: {(lightTheme as any)[k]}
@@ -167,11 +168,15 @@ function App() {
                 )}
             </animated.div>
 
-            {stage === 0 && <div className="flex flex-row items-center bottom-0 left-0 absolute h-[10%] w-full border-1 p-4">
-                <Button className='w-full' disabled={!validateInput(teams)} onClick={() => {
-                    setStage(stage + 1)
-                }}>Start</Button>
-            </div>}
+            {stage === 0 &&
+                <div className="flex flex-col gap-2 items-center bottom-0 left-0 absolute h-[10%] w-full border-1 p-3">
+                    <Button className='w-full' disabled={!validateInput(teams)} onClick={() => {
+                        setStage(stage + 1)
+                    }}>Start</Button>
+
+                    {!validateInput(teams) && <div className='text-destructive'>Please fill all the fields</div>}
+                </div>
+            }
         </AppContext.Provider>
     )
 }

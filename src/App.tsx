@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import { useSpring, animated } from '@react-spring/web'
 import { Button } from './components/shadcn/ui/button'
@@ -75,6 +75,7 @@ function App() {
 
     const [theme, setTheme] = useState<'dark' | 'light'>('dark')
 
+    const fetchFromLocalStorage = useRef(false)
     useEffect(() => {
         if (localStorage.getItem('teams') !== null)
             setTeams(JSON.parse(localStorage.getItem('teams') as string) as any)
@@ -91,14 +92,9 @@ function App() {
             changeTheme('dark')
         else
             changeTheme('light')
-    }, [])
 
-    useEffect(() => {
-        if (teams !== undefined)
-            localStorage.setItem('teams', JSON.stringify(teams))
-        localStorage.setItem('maxTurns', maxTurns.toString())
-        localStorage.setItem('eachTurnDurationSeconds', eachTurnDurationSeconds.toString())
-    }, [teams, maxTurns, eachTurnDurationSeconds])
+        fetchFromLocalStorage.current = true
+    }, [])
 
     const changeTheme = (t: 'dark' | 'light') => {
         const themeColors: { [k: string]: string } = t === 'light' ? lightTheme : darkTheme
@@ -132,7 +128,26 @@ function App() {
             </div>
 
             <animated.div className="top-[5%] left-0 absolute h-[85%] w-full" style={{ ...styles0 }}>
-                <GameProperties teams={teams} setTeams={setTeams} maxTurns={maxTurns} setMaxTurns={setMaxTurns} eachTurnDurationSeconds={eachTurnDurationSeconds} setEachTurnDurationSeconds={setEachTurnDurationSeconds} />
+                <GameProperties
+                    teams={teams}
+                    setTeams={(v) => {
+                        if (v !== undefined)
+                            localStorage.setItem('teams', JSON.stringify(v))
+                        setTeams(v)
+                    }}
+                    maxTurns={maxTurns}
+                    setMaxTurns={(v) => {
+                        if (v !== undefined)
+                            localStorage.setItem('maxTurns', v.toString())
+                        setMaxTurns(v)
+                    }}
+                    eachTurnDurationSeconds={eachTurnDurationSeconds}
+                    setEachTurnDurationSeconds={(v) => {
+                        if (v !== undefined)
+                            localStorage.setItem('eachTurnDurationSeconds', v.toString())
+                        setEachTurnDurationSeconds(v)
+                    }}
+                />
             </animated.div >
 
             <animated.div className="top-[5%] left-0 absolute h-[85%] w-full overflow-y-auto" style={{ ...styles1 }}>
@@ -154,7 +169,6 @@ function App() {
 
             {stage === 0 && <div className="flex flex-row items-center bottom-0 left-0 absolute h-[10%] w-full border-1 p-4">
                 <Button className='w-full' disabled={!validateInput(teams)} onClick={() => {
-                    localStorage.setItem('teams', JSON.stringify(teams))
                     setStage(stage + 1)
                 }}>Start</Button>
             </div>}

@@ -19,7 +19,7 @@ export type GamePropertiesProps = {
 function GameProperties({ teams, setTeams, maxTurns, setMaxTurns, eachTurnDurationSeconds, setEachTurnDurationSeconds, wordsCategory, setWordsCategory }: GamePropertiesProps) {
     return (
         <>
-            <div className="p-2 overflow-y-auto">
+            <div className="h-full p-2 overflow-y-auto">
                 <FieldGroup>
                     <FieldSet>
                         <FieldLegend>
@@ -87,7 +87,8 @@ function GameProperties({ teams, setTeams, maxTurns, setMaxTurns, eachTurnDurati
                                         <SelectItem value="animals">animals</SelectItem>
                                         <SelectItem value="jobs">jobs</SelectItem>
                                         <SelectItem value="things">things</SelectItem>
-                                        <SelectItem value="things">places</SelectItem>
+                                        <SelectItem value="places">places</SelectItem>
+                                        <SelectItem value="names">names</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </Field>

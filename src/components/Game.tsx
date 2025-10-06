@@ -6,18 +6,20 @@ import animals from '@/words/animals.json'
 import jobs from '@/words/jobs.json'
 import things from '@/words/things.json'
 import places from '@/words/places.json'
+import names from '@/words/names.json'
 import { DateTime } from 'luxon'
 import CountDownClock from "./CountDownClock"
 import Teammate from "./Teammate"
 import { AppContext } from "@/context"
 import { Input } from "./shadcn/ui/input"
+import { shuffle } from "@/lib/utils"
 
 function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Dispatch<React.SetStateAction<Team[]>>, finish: () => void }) {
     const appContext = useContext(AppContext)!
 
     const eachTurnDurationSeconds = appContext.eachTurnDurationSeconds
 
-    const words = { animals, jobs, things, places }[appContext.wordsCategory] as string[]
+    const words = { animals, jobs, things, places, names }[appContext.wordsCategory] as string[]
 
     const startedAt = useRef(0)
     const turns = useRef(0)
@@ -128,7 +130,8 @@ function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Disp
 
                     {!state.playing &&
                         <Button className="top-1/2 left-1/2 absolute -translate-x-[50%] -translate-y-[50%] bg-cyan-700 shadow-2xl" onClick={() => {
-                            // To do: fetch words
+                            // To do: fetch words, shuffle words
+                            shuffle(words)
                             dispatch({ type: 'start' })
                         }}>
                             Start
@@ -144,7 +147,7 @@ function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Disp
                                 rotate()
 
                                 // Add score
-                                teams[turns.current % teams.length].score += DateTime.utc().toUnixInteger() - startedAt.current
+                                teams[turns.current % teams.length].score += eachTurnDurationSeconds - (DateTime.utc().toUnixInteger() - startedAt.current)
                                 setTeams([...teams])
 
                                 startTimer(() => {

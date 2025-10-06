@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import { useSpring, animated } from '@react-spring/web'
+import { AnimatePresence, motion, type Transition } from 'framer-motion'
 import { Button } from './components/shadcn/ui/button'
 import GameProperties from './components/GameProperties'
 import Sun from '@/assets/sun_sunny_heat_summer.svg?react'
@@ -12,6 +12,11 @@ import type { Team } from './components/types'
 import Game from './components/Game'
 import { AppContext } from './context'
 
+const transition: Transition = {
+    duration: 0.5,
+    ease: [0, 0.75, 0.25, 1],
+}
+
 function App() {
     const [teams, setTeams] = useState<Team[]>([{ members: [], score: 0 }, { members: [], score: 0 }, { members: [], score: 0 }, { members: [], score: 0 }])
     const [stage, setStage] = useState<number>(0)
@@ -21,45 +26,45 @@ function App() {
 
     console.log('App', `teams: ${JSON.stringify(teams)}`, `stage: ${stage}`)
 
-    const [styles0, api0] = useSpring(() => ({
-        from: { left: '-100%' },
-        config: {
-            tension: 170,
-            friction: 26
-        }
-    }))
+    // const [styles0, api0] = useSpring(() => ({
+    //     from: { left: '-100%' },
+    //     config: {
+    //         tension: 170,
+    //         friction: 26
+    //     }
+    // }))
 
-    const [styles1, api1] = useSpring(() => ({
-        from: { left: '-100%' },
-        config: {
-            tension: 170,
-            friction: 26
-        }
-    }))
+    // const [styles1, api1] = useSpring(() => ({
+    //     from: { left: '-100%' },
+    //     config: {
+    //         tension: 170,
+    //         friction: 26
+    //     }
+    // }))
 
-    useEffect(() => {
-        switch (stage) {
-            case 0:
-                api1.start({ to: { left: '-100%' } })
-                api0.start({ to: { left: '0%' } })
-                break;
+    // useEffect(() => {
+    //     switch (stage) {
+    //         case 0:
+    //             api1.start({ to: { left: '-100%' } })
+    //             api0.start({ to: { left: '0%' } })
+    //             break;
 
-            case 1:
-                api0.start({ to: { left: '-100%' } })
-                api1.start({ to: { left: '0%' } })
-                break;
+    //         case 1:
+    //             api0.start({ to: { left: '-100%' } })
+    //             api1.start({ to: { left: '0%' } })
+    //             break;
 
-            case 2:
-                api0.start({ to: { left: '-100%' } })
-                api1.start({ to: { left: '-100%' } })
-                break;
+    //         case 2:
+    //             api0.start({ to: { left: '-100%' } })
+    //             api1.start({ to: { left: '-100%' } })
+    //             break;
 
-            default:
-                api0.start({ to: { left: '-100%' } })
-                api1.start({ to: { left: '-100%' } })
-                break;
-        }
-    }, [stage])
+    //         default:
+    //             api0.start({ to: { left: '-100%' } })
+    //             api1.start({ to: { left: '-100%' } })
+    //             break;
+    //     }
+    // }, [stage])
 
     const [theme, setTheme] = useState<'dark' | 'light'>('dark')
 
@@ -118,32 +123,52 @@ function App() {
                 </div>
 
                 <div className="h-[85%] w-full relative">
-                    <animated.div className="top-0 left-0 absolute h-full w-full" style={{ ...styles0 }}>
-                        <GameProperties
-                            teams={teams}
-                            setTeams={(v) => {
-                                if (v !== undefined)
-                                    localStorage.setItem('teams', JSON.stringify(v))
-                                setTeams(v)
-                            }}
-                            maxTurns={maxTurns}
-                            setMaxTurns={(v) => {
-                                if (v !== undefined)
-                                    localStorage.setItem('maxTurns', v.toString())
-                                setMaxTurns(v)
-                            }}
-                            eachTurnDurationSeconds={eachTurnDurationSeconds}
-                            setEachTurnDurationSeconds={(v) => {
-                                if (v !== undefined)
-                                    localStorage.setItem('eachTurnDurationSeconds', v.toString())
-                                setEachTurnDurationSeconds(v)
-                            }}
-                        />
-                    </animated.div >
+                    <AnimatePresence mode='sync'>
+                        {stage === 0 &&
+                            <motion.div
+                                className="top-0 left-0 absolute h-full w-full"
+                                initial={{ left: '-100%' }}
+                                animate={{ left: stage === 0 ? '0%' : '-100%' }}
+                                exit={{ left: '-100%' }}
+                                transition={transition}
+                                key={'stage1'}
+                            >
+                                <GameProperties
+                                    teams={teams}
+                                    setTeams={(v) => {
+                                        if (v !== undefined)
+                                            localStorage.setItem('teams', JSON.stringify(v))
+                                        setTeams(v)
+                                    }}
+                                    maxTurns={maxTurns}
+                                    setMaxTurns={(v) => {
+                                        if (v !== undefined)
+                                            localStorage.setItem('maxTurns', v.toString())
+                                        setMaxTurns(v)
+                                    }}
+                                    eachTurnDurationSeconds={eachTurnDurationSeconds}
+                                    setEachTurnDurationSeconds={(v) => {
+                                        if (v !== undefined)
+                                            localStorage.setItem('eachTurnDurationSeconds', v.toString())
+                                        setEachTurnDurationSeconds(v)
+                                    }}
+                                />
+                            </motion.div>
+                        }
 
-                    <animated.div className="top-0 left-0 absolute h-full w-full" style={{ ...styles1 }}>
-                        <Game teams={teams} setTeams={setTeams} finish={() => setStage(0)} />
-                    </animated.div>
+                        {stage === 1 &&
+                            <motion.div
+                                className="top-0 left-0 absolute h-full w-full"
+                                initial={{ left: '-100%' }}
+                                animate={{ left: stage === 1 ? '0%' : '-100%' }}
+                                exit={{ left: '-100%' }}
+                                transition={transition}
+                                key={'stage2'}
+                            >
+                                <Game teams={teams} setTeams={setTeams} finish={() => setStage(0)} />
+                            </motion.div>
+                        }
+                    </AnimatePresence>
                 </div>
 
                 {stage === 0 &&

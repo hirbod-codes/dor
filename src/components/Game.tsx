@@ -1,5 +1,5 @@
 import { useContext, useReducer, useRef, useState } from "react"
-import { type Transition, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import type { Team } from "./types"
 import { Button } from "./shadcn/ui/button"
 import animals from '@/words/animals.json'
@@ -8,11 +8,6 @@ import CountDownClock from "./CountDownClock"
 import Teammate from "./Teammate"
 import { AppContext } from "@/context"
 import { Input } from "./shadcn/ui/input"
-
-const transition: Transition = {
-    duration: 1,
-    ease: "easeInOut",
-}
 
 function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Dispatch<React.SetStateAction<Team[]>>, finish: () => void }) {
     const appContext = useContext(AppContext)!
@@ -67,14 +62,8 @@ function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Disp
 
         // let angle = 360 / (teams.length * 2) // Since each team has two members
         controlsRef.current.forEach((cs, i) => {
-            cs[0].start({
-                offsetDistance: `${(((i * angle) + 90 + (turns.current * angle)) / 360) * 100}%`,
-                transition
-            })
-            cs[1].start({
-                offsetDistance: `${(((i * angle) + 270 + (turns.current * angle)) / 360) * 100}%`,
-                transition
-            })
+            cs[0].start({ offsetDistance: `${(((i * angle) + 90 + (turns.current * angle)) / 360) * 100}%` })
+            cs[1].start({ offsetDistance: `${(((i * angle) + 270 + (turns.current * angle)) / 360) * 100}%` })
         })
     }
 
@@ -128,12 +117,14 @@ function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Disp
                 <div className="w-full h-full p-2">
                     {state.playing && <CountDownClock durationSeconds={eachTurnDurationSeconds} resetRef={turns.current} />}
 
+                    <div className="top-1/2 left-1/2 absolute -translate-x-[50%] -translate-y-[50%] size-40 rounded-full bg-primary shadow-xl" />
+
                     {teams.map((t, i) =>
                         <Teammate key={angle + i} angle={angle} index={i} team={t} registerControls={register} unregisterControls={unregister} />
                     )}
 
                     {!state.playing &&
-                        <Button className="top-1/2 left-1/2 absolute -translate-x-[50%] -translate-y-[50%]" onClick={() => {
+                        <Button className="top-1/2 left-1/2 absolute -translate-x-[50%] -translate-y-[50%] bg-cyan-700 shadow-2xl" onClick={() => {
                             // To do: fetch words
                             dispatch({ type: 'start' })
                         }}>

@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 
 const transition: Transition = {
     duration: 1,
-    ease: "easeInOut",
+    ease: [0, 1, 0.5, 1],
 }
 
 function Teammate({ team, angle, index, registerControls, unregisterControls }: { team: Team, angle: number, index: number, registerControls: (i: number, controls: any[]) => void, unregisterControls: (i: number) => void }) {
@@ -24,24 +24,22 @@ function Teammate({ team, angle, index, registerControls, unregisterControls }: 
     return (
         <>
             <motion.div
-                className="absolute border-2 border-red-500"
+                className="absolute"
                 initial={{ offsetRotate: '360deg', offsetDistance: `${(((index * angle) + 90) / 360) * 100}%` }}
                 animate={control1}
                 transition={transition}
-                style={{ offsetPath: 'circle(25% at 50% 50%)', transform: 'translateZ(0)', backfaceVisibility: 'hidden', WebkitFontSmoothing: 'antialiased' }}
+                style={{ offsetPath: 'circle(25% at 50% 50%)', willChange: 'transform offset-distance' }}
             >
                 {team.members[0]}
             </motion.div>
             <motion.div
-                className="absolute border-2 border-red-500"
+                className="absolute"
                 initial={{ offsetRotate: '360deg', offsetDistance: `${(((index * angle) + 270) / 360) * 100}%` }}
                 animate={control2}
                 transition={transition}
-                style={{ offsetPath: 'circle(25% at 50% 50%)' }}
+                style={{ offsetPath: 'circle(25% at 50% 50%)', willChange: 'transform offset-distance' }}
             >
-                <div className="transform-none">
-                    {team.members[1]}
-                </div>
+                {team.members[1]}
             </motion.div>
         </>
     )

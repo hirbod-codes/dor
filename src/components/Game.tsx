@@ -3,6 +3,9 @@ import { motion } from 'framer-motion'
 import type { Team } from "./types"
 import { Button } from "./shadcn/ui/button"
 import animals from '@/words/animals.json'
+import jobs from '@/words/jobs.json'
+import things from '@/words/things.json'
+import places from '@/words/places.json'
 import { DateTime } from 'luxon'
 import CountDownClock from "./CountDownClock"
 import Teammate from "./Teammate"
@@ -14,7 +17,7 @@ function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Disp
 
     const eachTurnDurationSeconds = appContext.eachTurnDurationSeconds
 
-    const [words, _setWords] = useState(animals)
+    const words = { animals, jobs, things, places }[appContext.wordsCategory] as string[]
 
     const startedAt = useRef(0)
     const turns = useRef(0)

@@ -3,6 +3,7 @@ import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "./shadcn/u
 import { Input } from "./shadcn/ui/input"
 import Trash from '@/assets/Trash.svg?react'
 import type { Team } from "./types"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./shadcn/ui/select"
 
 export type GamePropertiesProps = {
     teams: Team[]
@@ -11,9 +12,11 @@ export type GamePropertiesProps = {
     setMaxTurns: React.Dispatch<React.SetStateAction<number>>
     eachTurnDurationSeconds: number
     setEachTurnDurationSeconds: React.Dispatch<React.SetStateAction<number>>
+    wordsCategory: string
+    setWordsCategory: React.Dispatch<React.SetStateAction<string>>
 }
 
-function GameProperties({ teams, setTeams, maxTurns, setMaxTurns, eachTurnDurationSeconds, setEachTurnDurationSeconds }: GamePropertiesProps) {
+function GameProperties({ teams, setTeams, maxTurns, setMaxTurns, eachTurnDurationSeconds, setEachTurnDurationSeconds, wordsCategory, setWordsCategory }: GamePropertiesProps) {
     return (
         <>
             <div className="p-2 overflow-y-auto">
@@ -71,6 +74,22 @@ function GameProperties({ teams, setTeams, maxTurns, setMaxTurns, eachTurnDurati
                                             setMaxTurns(n)
                                     }}
                                 />
+                            </Field>
+                            <Field>
+                                <FieldLabel htmlFor="wordsCategory">
+                                    Choose words category
+                                </FieldLabel>
+                                <Select defaultValue={wordsCategory ?? 'animals'} value={wordsCategory} onValueChange={(v) => setWordsCategory(v)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder='Category' />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="animals">animals</SelectItem>
+                                        <SelectItem value="jobs">jobs</SelectItem>
+                                        <SelectItem value="things">things</SelectItem>
+                                        <SelectItem value="things">places</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </Field>
                         </FieldGroup>
 

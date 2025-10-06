@@ -11,6 +11,7 @@ import darkTheme from '@/themes/dark.json'
 import type { Team } from './components/types'
 import Game from './components/Game'
 import { AppContext } from './context'
+import run from './words/script'
 
 const transition: Transition = {
     duration: 0.5,
@@ -23,48 +24,9 @@ function App() {
 
     const [maxTurns, setMaxTurns] = useState(0)
     const [eachTurnDurationSeconds, setEachTurnDurationSeconds] = useState(0)
+    const [wordsCategory, setWordsCategory] = useState('animals')
 
     console.log('App', `teams: ${JSON.stringify(teams)}`, `stage: ${stage}`)
-
-    // const [styles0, api0] = useSpring(() => ({
-    //     from: { left: '-100%' },
-    //     config: {
-    //         tension: 170,
-    //         friction: 26
-    //     }
-    // }))
-
-    // const [styles1, api1] = useSpring(() => ({
-    //     from: { left: '-100%' },
-    //     config: {
-    //         tension: 170,
-    //         friction: 26
-    //     }
-    // }))
-
-    // useEffect(() => {
-    //     switch (stage) {
-    //         case 0:
-    //             api1.start({ to: { left: '-100%' } })
-    //             api0.start({ to: { left: '0%' } })
-    //             break;
-
-    //         case 1:
-    //             api0.start({ to: { left: '-100%' } })
-    //             api1.start({ to: { left: '0%' } })
-    //             break;
-
-    //         case 2:
-    //             api0.start({ to: { left: '-100%' } })
-    //             api1.start({ to: { left: '-100%' } })
-    //             break;
-
-    //         default:
-    //             api0.start({ to: { left: '-100%' } })
-    //             api1.start({ to: { left: '-100%' } })
-    //             break;
-    //     }
-    // }, [stage])
 
     const [theme, setTheme] = useState<'dark' | 'light'>('dark')
 
@@ -79,6 +41,9 @@ function App() {
 
         if (localStorage.getItem('eachTurnDurationSeconds') !== null && localStorage.getItem('eachTurnDurationSeconds') !== undefined && localStorage.getItem('eachTurnDurationSeconds') !== 'undefined' && localStorage.getItem('eachTurnDurationSeconds') !== 'null')
             setEachTurnDurationSeconds(Number.parseInt(localStorage.getItem('eachTurnDurationSeconds')!))
+
+        if (localStorage.getItem('wordsCategory') !== null && localStorage.getItem('wordsCategory') !== undefined && localStorage.getItem('wordsCategory') !== 'undefined' && localStorage.getItem('wordsCategory') !== 'null')
+            setWordsCategory(localStorage.getItem('wordsCategory')!)
 
         if (localStorage.getItem('theme') !== null)
             changeTheme(localStorage.getItem('theme') as any)
@@ -113,9 +78,10 @@ function App() {
     }
 
     return (
-        <AppContext.Provider value={{ eachTurnDurationSeconds, maxTurns }}>
+        <AppContext.Provider value={{ eachTurnDurationSeconds, maxTurns, wordsCategory }}>
             <div className="flex flex-col h-screen w-screen">
                 <div className="w-full flex flex-row justify-start bg-primary items-center p-2">
+                    <Button onClick={() => { run() }}>run</Button>
                     {stage !== 0 && <LeftArrow className='cursor-pointer stroke-primary-foreground' fontSize={40} onClick={() => setStage(0)} />}
                     <div className="flex-1"></div>
                     {theme === 'dark' && <Sun className='cursor-pointer stroke-primary-foreground fill-primary-foreground' fontSize={30} onClick={() => changeTheme('light')} />}
@@ -151,6 +117,12 @@ function App() {
                                         if (v !== undefined)
                                             localStorage.setItem('eachTurnDurationSeconds', v.toString())
                                         setEachTurnDurationSeconds(v)
+                                    }}
+                                    wordsCategory={wordsCategory}
+                                    setWordsCategory={(v) => {
+                                        if (v !== undefined)
+                                            localStorage.setItem('wordsCategory', v.toString())
+                                        setWordsCategory(v)
                                     }}
                                 />
                             </motion.div>

@@ -56,25 +56,39 @@ function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Disp
         timer.current = undefined
     }
 
-    const rotate = () => {
+    const [results, setResults] = useState<Team[] | undefined>(undefined)
+    const [showingResult, setShowingResult] = useState(false)
+    const showResult = () => {
+        setShowingResult(true)
+    }
+
+    const canRotate = useRef(true)
+    const rotate = async () => {
+        if (canRotate.current === false)
+            return
+
+        canRotate.current = false
+
         if (turns.current >= ((appContext.maxTurns * teams.length * 2) - 1)) {
-            teams.sort((a, b) => a.score - b.score)
+            const r = [...teams]
+            r.sort((a, b) => a.score - b.score) // sort scores
+            r.reverse() // descending
+            setResults([...r])
             showResult()
             return
         }
 
         turns.current += 1
 
-        // let angle = 360 / (teams.length * 2) // Since each team has two members
+        const promises: Promise<any>[] = []
         controlsRef.current.forEach((cs, i) => {
-            cs[0].start({ offsetDistance: `${(((i * angle) + 90 + (turns.current * angle)) / 360) * 100}%` })
-            cs[1].start({ offsetDistance: `${(((i * angle) + 270 + (turns.current * angle)) / 360) * 100}%` })
+            promises.push(cs[0].start({ offsetDistance: `${(((i * angle) + 90 + (turns.current * angle)) / 360) * 100}%` }))
+            promises.push(cs[1].start({ offsetDistance: `${(((i * angle) + 270 + (turns.current * angle)) / 360) * 100}%` }))
         })
-    }
 
-    const [showingResult, setShowingResult] = useState(false)
-    const showResult = () => {
-        setShowingResult(true)
+        await Promise.allSettled(promises)
+
+        canRotate.current = true
     }
 
     const initialState = { playing: false };
@@ -142,18 +156,22 @@ function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Disp
                         <div
                             className="top-1/2 left-1/2 absolute -translate-x-[50%] -translate-y-[50%] rounded-full w-[25%] h-[25%]"
                             onClick={() => {
+                                if (canRotate.current === false)
+                                    return
+
                                 stopTimer()
 
                                 rotate()
+                                    .then(() => {
+                                        // Add score
+                                        teams[turns.current % teams.length].score += eachTurnDurationSeconds - (DateTime.utc().toUnixInteger() - startedAt.current)
+                                        setTeams([...teams])
 
-                                // Add score
-                                teams[turns.current % teams.length].score += eachTurnDurationSeconds - (DateTime.utc().toUnixInteger() - startedAt.current)
-                                setTeams([...teams])
-
-                                startTimer(() => {
-                                    console.log('tick')
-                                    dispatch({ type: 'timeout' })
-                                })
+                                        startTimer(() => {
+                                            console.log('tick')
+                                            dispatch({ type: 'timeout' })
+                                        })
+                                    })
                             }}
                         >
                             <div className="top-1/2 left-1/2 absolute -translate-x-[50%] -translate-y-[50%] pointer-events-none cursor-pointer">
@@ -171,13 +189,13 @@ function Game({ teams, setTeams, finish }: { teams: Team[], setTeams: React.Disp
                         exit={{ bottom: '-100%' }}
                         transition={{ duration: 1, ease: 'easeInOut' }}
                     >
-                        {teams.map((t, i) =>
+                        {results?.map((t, i) =>
                             <div key={i} className="flex flex-row items-center gap-2">
                                 <div className="text-xl">
                                     {`Score: ${t.score}`}
                                 </div>
-                                <Input value={t.members[0]} />
-                                <Input value={t.members[1]} />
+                                <Input className='pointer-events-none' value={t.members[0]} />
+                                <Input className='pointer-events-none' value={t.members[1]} />
                             </div>
                         )}
 

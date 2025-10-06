@@ -3,7 +3,7 @@ import type { Team } from './types'
 import { useEffect } from 'react'
 
 const transition: Transition = {
-    duration: 1,
+    duration: 0.5,
     ease: [0, 1, 0.5, 1],
 }
 

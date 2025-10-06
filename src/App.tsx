@@ -11,7 +11,6 @@ import darkTheme from '@/themes/dark.json'
 import type { Team } from './components/types'
 import Game from './components/Game'
 import { AppContext } from './context'
-import run from './words/script'
 
 const transition: Transition = {
     duration: 0.5,
@@ -81,7 +80,6 @@ function App() {
         <AppContext.Provider value={{ eachTurnDurationSeconds, maxTurns, wordsCategory }}>
             <div className="flex flex-col h-screen w-screen">
                 <div className="w-full flex flex-row justify-start bg-primary items-center p-2">
-                    <Button onClick={() => { run() }}>run</Button>
                     {stage !== 0 && <LeftArrow className='cursor-pointer stroke-primary-foreground' fontSize={40} onClick={() => setStage(0)} />}
                     <div className="flex-1"></div>
                     {theme === 'dark' && <Sun className='cursor-pointer stroke-primary-foreground fill-primary-foreground' fontSize={30} onClick={() => changeTheme('light')} />}
